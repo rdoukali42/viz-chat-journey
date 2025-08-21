@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Send, MessageSquare, Plus, Clock } from 'lucide-react';
 import Spinner from '@/components/Spinner';
+import { useProgress } from '@/contexts/ProgressContext';
 
 interface Message {
   id: string;
@@ -69,6 +70,7 @@ const Chatbot = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const activeConversation = conversations.find(c => c.id === activeConversationId);
+  const progress = useProgress();
 
   const handleSendMessage = async () => {
     if (!message.trim() || isLoading) return;
@@ -80,7 +82,7 @@ const Chatbot = () => {
       timestamp: new Date()
     };
 
-    // Add user message
+  // Add user message
     if (activeConversationId) {
       setConversations(prev => prev.map(conv => 
         conv.id === activeConversationId 
@@ -97,6 +99,13 @@ const Chatbot = () => {
       };
       setConversations(prev => [newConversation, ...prev]);
       setActiveConversationId(newConversation.id);
+    }
+
+    // mark chat step as confirmed (first user send will persist this)
+    try {
+      progress.confirmChat();
+    } catch (e) {
+      // if ProgressProvider is not present, silently ignore
     }
 
     setMessage('');

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -16,9 +16,11 @@ import {
 } from 'lucide-react';
 import Spinner from '@/components/Spinner';
 import DataDiscovery from '@/components/DataDiscovery';
+import { useProgress } from '@/contexts/ProgressContext';
 
 const Dashboard = () => {
   const { files, removeFile } = useUser();
+  const progress = useProgress();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
 
@@ -35,6 +37,10 @@ const Dashboard = () => {
   const formatFileSize = (bytes: number) => {
     return (bytes / 1024 / 1024).toFixed(2) + ' MB';
   };
+
+  useEffect(() => {
+    progress.confirmDiscovery();
+  }, []);
 
   if (selectedFile) {
     return (

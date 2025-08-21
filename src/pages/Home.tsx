@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useUser } from '@/contexts/UserContext';
+import { useProgress } from '@/contexts/ProgressContext';
 import { toast } from 'sonner';
 import { Upload, FileText, ArrowRight } from 'lucide-react';
 import Spinner from '@/components/Spinner';
@@ -12,6 +13,7 @@ import { cn } from '@/lib/utils';
 const Home = () => {
   const [isDragOver, setIsDragOver] = useState(false);
   const { files, uploadFiles, isLoading, setIsLoading } = useUser();
+  const progress = useProgress();
   const navigate = useNavigate();
 
   const handleFileUpload = async (uploadedFiles: FileList) => {
@@ -34,7 +36,9 @@ const Home = () => {
     setTimeout(() => {
       uploadFiles(newFiles);
       setIsLoading(false);
-      toast.success(`Successfully uploaded ${uploadedFiles.length} file(s)`);
+  toast.success(`Successfully uploaded ${uploadedFiles.length} file(s)`);
+  // confirm upload progress
+  progress.confirmUpload();
     }, 2000);
   };
 
