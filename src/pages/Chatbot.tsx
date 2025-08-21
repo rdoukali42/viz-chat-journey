@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import ChatInput from '@/components/ChatInput';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Send, MessageSquare, Plus, Clock } from 'lucide-react';
 import Spinner from '@/components/Spinner';
@@ -317,11 +318,11 @@ const Chatbot = () => {
               {/* Message Input */}
               <div className="p-6 border-t border-border">
                 <div className="flex items-center space-x-4">
-                  <Input
-                    placeholder="Ask a question about your data..."
+                  <ChatInput
                     value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                    onChange={setMessage}
+                    onSend={handleSendMessage}
+                    placeholder="Ask a question about your data..."
                     disabled={isLoading}
                     className="flex-1"
                   />
