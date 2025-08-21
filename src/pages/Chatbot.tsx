@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import ChatInput from '@/components/ChatInput';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Send, MessageSquare, Plus, Clock } from 'lucide-react';
+import { Send, MessageSquare, Plus, Clock, Copy, RefreshCw } from 'lucide-react';
 import Spinner from '@/components/Spinner';
 import { useProgress } from '@/contexts/ProgressContext';
 
@@ -152,6 +152,60 @@ const Chatbot = () => {
     }, tickMs);
   };
 
+  const copyMessage = async (content: string) => {
+    try {
+      await navigator.clipboard.writeText(content);
+      // lightweight feedback
+      // sonner toast is imported earlier
+      // but to avoid duplicate imports, reuse existing toast usage in file (it's used elsewhere)
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { toast } = require('sonner');
+      toast.success('Copied to clipboard');
+    } catch {
+      const { toast } = require('sonner');
+      toast.error('Copy failed');
+    }
+  };
+
+  const regenerateMessage = (messageId: string) => {
+    if (isStreaming) return; // avoid overlapping streams
+
+    const newResponse = generateMockResponse('regenerate');
+
+    // start streaming into the existing message slot
+    setIsLoading(true);
+    setIsStreaming(true);
+
+    let idx = 0;
+    const assistantId = messageId;
+    const tickMs = 60;
+
+    // ensure message exists; if not, do nothing
+    setConversations(prev => prev.map(conv => ({ ...conv, messages: conv.messages.map(m => m.id === assistantId ? { ...m, content: '' } : m) })));
+
+    if (streamingRef.current) {
+      clearInterval(streamingRef.current);
+      streamingRef.current = null;
+    }
+
+    streamingRef.current = setInterval(() => {
+      idx += Math.max(1, Math.floor(Math.random() * 6));
+      const chunk = newResponse.slice(0, idx);
+      setConversations(prev => prev.map(conv => 
+        ({ ...conv, messages: conv.messages.map(m => m.id === assistantId ? { ...m, content: chunk } : m) })
+      ));
+
+      if (idx >= newResponse.length) {
+        if (streamingRef.current) {
+          clearInterval(streamingRef.current);
+          streamingRef.current = null;
+        }
+        setIsStreaming(false);
+        setIsLoading(false);
+      }
+    }, tickMs);
+  };
+
   const generateMockResponse = (userMessage: string): string => {
     const responses = [
       "Based on your data files, I can see some interesting patterns. Let me analyze the specific metrics you're interested in.",
@@ -280,12 +334,26 @@ const Chatbot = () => {
                             : 'bg-secondary text-secondary-foreground'
                         }`}
                       >
-                        <p className="text-sm leading-relaxed">{msg.content}</p>
-                        <p className={`text-xs mt-2 ${
-                          msg.role === 'user' ? 'text-primary-foreground/70' : 'text-muted-foreground'
-                        }`}>
-                          {formatTime(msg.timestamp)}
-                        </p>
+                        <div className="flex items-start justify-between">
+                          <div className="min-w-0">
+                            <p className="text-sm leading-relaxed break-words">{msg.content}</p>
+                            <p className={`text-xs mt-2 ${
+                              msg.role === 'user' ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                            }`}>
+                              {formatTime(msg.timestamp)}
+                            </p>
+                          </div>
+                          {msg.role === 'assistant' && (
+                            <div className="ml-3 flex items-start space-x-2">
+                              <button title="Copy" onClick={() => copyMessage(msg.content)} className="p-1 rounded hover:bg-muted/10">
+                                <Copy className="h-4 w-4" />
+                              </button>
+                              <button title="Regenerate" onClick={() => regenerateMessage(msg.id)} className="p-1 rounded hover:bg-muted/10">
+                                <RefreshCw className="h-4 w-4" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}
