@@ -70,7 +70,7 @@ const Home = () => {
         {/* Hero Section */}
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold text-foreground mb-6">
-            Welcome to <span className="bg-gradient-primary bg-clip-text text-transparent">DataHub</span>
+            Welcome to <span className="bg-gradient-primary bg-clip-text text-transparent">ON</span>Mark
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Upload, analyze, and explore your data with our powerful analytics platform. 

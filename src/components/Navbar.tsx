@@ -81,15 +81,22 @@ const ProgressBar = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center">
         {steps.map((s, i) => (
-          <div key={s.key} className="flex items-center space-x-2">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${s.done ? 'bg-primary text-primary-foreground' : s.available ? 'bg-muted/30 text-foreground' : 'bg-muted/10 text-muted-foreground'}`}>
-              {s.done ? <CheckCircle className="h-4 w-4" /> : s.icon}
+          <React.Fragment key={s.key}>
+            <div className="flex flex-col items-center min-w-[88px]">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${s.done ? 'bg-primary text-primary-foreground' : s.available ? 'bg-muted/30 text-foreground' : 'bg-muted/10 text-muted-foreground'}`}>
+                {s.done ? <CheckCircle className="h-4 w-4" /> : s.icon}
+              </div>
+              <div className={`text-sm mt-2 ${s.available ? 'text-foreground' : 'text-muted-foreground'}`}>{s.label}</div>
             </div>
-            <div className={`text-sm ${s.available ? 'text-foreground' : 'text-muted-foreground'}`}>{s.label}</div>
-            {i < steps.length - 1 && <div className={`w-6 h-px mx-4 ${steps[i].done ? 'bg-primary' : 'bg-border'}`} />}
-          </div>
+
+            {i < steps.length - 1 && (
+              <div className="flex-1 flex items-center" aria-hidden>
+                  <div className={`w-full h-0.5 rounded-full transition-colors duration-300 ${steps[i].done ? 'bg-primary' : 'bg-border'}`} />
+              </div>
+            )}
+          </React.Fragment>
         ))}
       </div>
     </div>
