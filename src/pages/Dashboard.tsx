@@ -6,7 +6,6 @@ import { useUser } from '@/contexts/UserContext';
 import { toast } from 'sonner';
 import { 
   FileText, 
-  Upload, 
   ExternalLink, 
   Search, 
   Eye, 
@@ -19,7 +18,7 @@ import Spinner from '@/components/Spinner';
 import DataDiscovery from '@/components/DataDiscovery';
 
 const Dashboard = () => {
-  const { files, uploadFiles, removeFile, isLoading, setIsLoading } = useUser();
+  const { files, removeFile } = useUser();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
 
@@ -27,33 +26,6 @@ const Dashboard = () => {
     file.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleFileUpload = async (uploadedFiles: FileList) => {
-    if (uploadedFiles.length === 0) return;
-    
-    setIsLoading(true);
-    
-    const newFiles = Array.from(uploadedFiles).map((file, index) => ({
-      id: `${Date.now()}-${index}`,
-      name: file.name,
-      size: file.size,
-      uploadDate: new Date().toISOString().split('T')[0],
-      rowCount: Math.floor(Math.random() * 50000) + 1000,
-      columns: ['id', 'timestamp', 'value', 'category', 'status'],
-      databaseLink: Math.random() > 0.5 ? `https://db.company.com/${file.name.split('.')[0]}` : undefined
-    }));
-
-    setTimeout(() => {
-      uploadFiles(newFiles);
-      setIsLoading(false);
-      toast.success(`Successfully uploaded ${uploadedFiles.length} file(s)`);
-    }, 2000);
-  };
-
-  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      handleFileUpload(e.target.files);
-    }
-  };
 
   const handleRemoveFile = (fileId: string) => {
     removeFile(fileId);
@@ -68,7 +40,8 @@ const Dashboard = () => {
     return (
       <DataDiscovery 
         file={selectedFile} 
-        onBack={() => setSelectedFile(null)} 
+        onBack={() => setSelectedFile(null)}
+        onFileSelect={(file) => setSelectedFile(file)}
       />
     );
   }
@@ -77,99 +50,75 @@ const Dashboard = () => {
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Data Dashboard</h1>
-          <p className="text-muted-foreground">
-            Manage your uploaded files and explore your data catalog
-          </p>
+        <div className="mb-8 text-center">
+          <div className="bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5 rounded-2xl p-8 mb-6">
+            <h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-3">
+              Data Dashboard
+            </h1>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Explore your data ecosystem with powerful analytics and seamless connections
+            </p>
+          </div>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="p-6">
+          <Card className="p-6 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 hover:shadow-glow transition-all duration-300">
             <div className="flex items-center">
-              <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center mr-4">
-                <FileText className="h-6 w-6 text-primary-foreground" />
+              <div className="w-14 h-14 bg-gradient-primary rounded-xl flex items-center justify-center mr-4 shadow-md">
+                <FileText className="h-7 w-7 text-primary-foreground" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-foreground">{files.length}</p>
-                <p className="text-muted-foreground">Total Files</p>
+                <p className="text-3xl font-bold text-foreground">{files.length}</p>
+                <p className="text-muted-foreground font-medium">Total Files</p>
               </div>
             </div>
           </Card>
           
-          <Card className="p-6">
+          <Card className="p-6 bg-gradient-to-br from-accent/5 to-accent/10 border-accent/20 hover:shadow-glow transition-all duration-300">
             <div className="flex items-center">
-              <div className="w-12 h-12 bg-gradient-accent rounded-lg flex items-center justify-center mr-4">
-                <BarChart3 className="h-6 w-6 text-accent-foreground" />
+              <div className="w-14 h-14 bg-gradient-accent rounded-xl flex items-center justify-center mr-4 shadow-md">
+                <BarChart3 className="h-7 w-7 text-accent-foreground" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-foreground">
+                <p className="text-3xl font-bold text-foreground">
                   {files.reduce((acc, file) => acc + file.rowCount, 0).toLocaleString()}
                 </p>
-                <p className="text-muted-foreground">Total Records</p>
+                <p className="text-muted-foreground font-medium">Total Records</p>
               </div>
             </div>
           </Card>
           
-          <Card className="p-6">
+          <Card className="p-6 bg-gradient-to-br from-secondary/20 to-secondary/30 border-secondary/30 hover:shadow-glow transition-all duration-300">
             <div className="flex items-center">
-              <div className="w-12 h-12 bg-secondary rounded-lg flex items-center justify-center mr-4">
-                <Database className="h-6 w-6 text-secondary-foreground" />
+              <div className="w-14 h-14 bg-secondary/80 rounded-xl flex items-center justify-center mr-4 shadow-md">
+                <Database className="h-7 w-7 text-secondary-foreground" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-foreground">
+                <p className="text-3xl font-bold text-foreground">
                   {files.filter(file => file.databaseLink).length}
                 </p>
-                <p className="text-muted-foreground">Connected Databases</p>
+                <p className="text-muted-foreground font-medium">Connected Databases</p>
               </div>
             </div>
           </Card>
         </div>
 
-        {/* Upload Section */}
-        <Card className="p-6 mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-semibold text-foreground mb-1">Upload New Files</h2>
-              <p className="text-muted-foreground">Add more data files to your collection</p>
-            </div>
-            <div className="flex items-center space-x-4">
-              {isLoading && <Spinner size="md" />}
-              <Input
-                type="file"
-                multiple
-                accept=".csv,.json,.xlsx,.xls"
-                onChange={handleFileInputChange}
-                className="hidden"
-                id="dashboard-file-upload"
-                disabled={isLoading}
-              />
-              <Button 
-                asChild 
-                disabled={isLoading}
-                className="bg-gradient-primary hover:opacity-90 transition-opacity"
-              >
-                <label htmlFor="dashboard-file-upload" className="cursor-pointer flex items-center">
-                  <Upload className="h-4 w-4 mr-2" />
-                  Upload Files
-                </label>
-              </Button>
-            </div>
-          </div>
-        </Card>
 
         {/* Files Table */}
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-foreground">Your Files</h2>
-            <div className="flex items-center space-x-2">
-              <Search className="h-4 w-4 text-muted-foreground" />
+        <Card className="p-8 bg-gradient-to-br from-card to-card/80 backdrop-blur-sm border-border/50 shadow-elegant">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-2xl font-bold text-foreground mb-1">Your Data Files</h2>
+              <p className="text-muted-foreground">Manage and explore your data collections</p>
+            </div>
+            <div className="flex items-center space-x-3 bg-secondary/50 rounded-lg p-2">
+              <Search className="h-5 w-5 text-muted-foreground" />
               <Input
                 placeholder="Search files..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-64"
+                className="w-64 border-0 bg-transparent focus:ring-2 focus:ring-primary/20"
               />
             </div>
           </div>
@@ -195,78 +144,80 @@ const Dashboard = () => {
                 </thead>
                 <tbody>
                   {filteredFiles.map((file) => (
-                    <tr key={file.id} className="border-b border-border hover:bg-secondary/50 transition-colors">
-                      <td className="py-4 px-4">
-                        <div className="flex items-center">
-                          <FileText className="h-4 w-4 text-muted-foreground mr-3" />
-                          <div>
-                            <p className="font-medium text-foreground">{file.name}</p>
-                            <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                              <span>{formatFileSize(file.size)}</span>
-                              <span>{file.rowCount.toLocaleString()} rows</span>
-                              <span className="flex items-center">
-                                <Calendar className="h-3 w-3 mr-1" />
-                                {file.uploadDate}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-4 px-4">
-                        <div className="flex flex-wrap gap-1">
-                          {file.columns.slice(0, 3).map((column, index) => (
-                            <span
-                              key={index}
-                              className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-md"
-                            >
-                              {column}
-                            </span>
-                          ))}
-                          {file.columns.length > 3 && (
-                            <span className="px-2 py-1 bg-muted text-muted-foreground text-xs rounded-md">
-                              +{file.columns.length - 3} more
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="py-4 px-4">
-                        {file.databaseLink ? (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            asChild
-                            className="flex items-center"
-                          >
-                            <a href={file.databaseLink} target="_blank" rel="noopener noreferrer">
-                              <ExternalLink className="h-3 w-3 mr-1" />
-                              View Database
-                            </a>
-                          </Button>
-                        ) : (
-                          <span className="text-muted-foreground text-sm">No Link</span>
-                        )}
-                      </td>
-                      <td className="py-4 px-4">
-                        <div className="flex items-center space-x-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setSelectedFile(file)}
-                            className="flex items-center"
-                          >
-                            <Eye className="h-3 w-3 mr-1" />
-                            Discovery
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleRemoveFile(file.id)}
-                            className="text-destructive hover:bg-destructive/10"
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </td>
+                     <tr key={file.id} className="border-b border-border hover:bg-gradient-to-r hover:from-primary/5 hover:to-accent/5 transition-all duration-200 group">
+                       <td className="py-6 px-4">
+                         <div className="flex items-center">
+                           <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center mr-4 group-hover:shadow-md transition-shadow">
+                             <FileText className="h-5 w-5 text-primary-foreground" />
+                           </div>
+                           <div>
+                             <p className="font-semibold text-foreground text-lg group-hover:text-primary transition-colors">{file.name}</p>
+                             <div className="flex items-center space-x-4 text-sm text-muted-foreground mt-1">
+                               <span className="font-medium">{formatFileSize(file.size)}</span>
+                               <span className="font-medium">{file.rowCount.toLocaleString()} rows</span>
+                               <span className="flex items-center font-medium">
+                                 <Calendar className="h-3 w-3 mr-1" />
+                                 {file.uploadDate}
+                               </span>
+                             </div>
+                           </div>
+                         </div>
+                       </td>
+                       <td className="py-6 px-4">
+                         <div className="flex flex-wrap gap-2">
+                           {file.columns.slice(0, 3).map((column, index) => (
+                             <span
+                               key={index}
+                               className="px-3 py-1.5 bg-gradient-to-r from-primary/10 to-primary/5 text-primary text-sm rounded-full font-medium border border-primary/20"
+                             >
+                               {column}
+                             </span>
+                           ))}
+                           {file.columns.length > 3 && (
+                             <span className="px-3 py-1.5 bg-muted text-muted-foreground text-sm rounded-full font-medium">
+                               +{file.columns.length - 3} more
+                             </span>
+                           )}
+                         </div>
+                       </td>
+                       <td className="py-6 px-4">
+                         {file.databaseLink ? (
+                           <Button
+                             variant="outline"
+                             size="sm"
+                             asChild
+                             className="flex items-center bg-gradient-to-r from-accent/10 to-accent/5 border-accent/30 hover:bg-accent/20 transition-all"
+                           >
+                             <a href={file.databaseLink} target="_blank" rel="noopener noreferrer">
+                               <ExternalLink className="h-4 w-4 mr-2" />
+                               View Database
+                             </a>
+                           </Button>
+                         ) : (
+                           <span className="text-muted-foreground text-sm font-medium">No Link</span>
+                         )}
+                       </td>
+                       <td className="py-6 px-4">
+                         <div className="flex items-center space-x-3">
+                           <Button
+                             variant="outline"
+                             size="sm"
+                             onClick={() => setSelectedFile(file)}
+                             className="flex items-center bg-gradient-to-r from-primary/10 to-primary/5 border-primary/30 hover:bg-primary/20 hover:shadow-md transition-all"
+                           >
+                             <Eye className="h-4 w-4 mr-2" />
+                             Discovery
+                           </Button>
+                           <Button
+                             variant="outline"
+                             size="sm"
+                             onClick={() => handleRemoveFile(file.id)}
+                             className="text-destructive hover:bg-destructive/10 border-destructive/30 hover:shadow-md transition-all"
+                           >
+                             <Trash2 className="h-4 w-4" />
+                           </Button>
+                         </div>
+                       </td>
                     </tr>
                   ))}
                 </tbody>

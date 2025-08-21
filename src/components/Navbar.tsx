@@ -13,11 +13,13 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <BarChart3 className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <span className="text-xl font-bold text-foreground">DataHub</span>
+            <Link to="/" className="flex items-center space-x-3">
+              <img 
+                src="/lovable-uploads/f109f649-2b67-4d07-a718-8d5c246a9f02.png" 
+                alt="OnMark Logo" 
+                className="h-8 w-auto"
+              />
+              <span className="text-xl font-bold text-foreground">OnMark Analytics</span>
             </Link>
           </div>
           
