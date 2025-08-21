@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -68,6 +68,8 @@ const Chatbot = () => {
   const [activeConversationId, setActiveConversationId] = useState<string | null>(conversations[0]?.id || null);
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const streamingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const activeConversation = conversations.find(c => c.id === activeConversationId);
   const progress = useProgress();
@@ -108,25 +110,45 @@ const Chatbot = () => {
       // if ProgressProvider is not present, silently ignore
     }
 
+    // Prepare for streaming response
+    const fullResponse = generateMockResponse(message);
+    const assistantId = `${Date.now()}-assistant`;
+
     setMessage('');
     setIsLoading(true);
+    setIsStreaming(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const assistantMessage: Message = {
-        id: `${Date.now()}-assistant`,
-        role: 'assistant',
-        content: generateMockResponse(message),
-        timestamp: new Date()
-      };
+    // Insert an empty assistant message placeholder so we can update it progressively
+    setConversations(prev => prev.map(conv => 
+      conv.id === activeConversationId 
+        ? { ...conv, messages: [...conv.messages, { id: assistantId, role: 'assistant', content: '', timestamp: new Date() }], lastActivity: new Date() }
+        : conv
+    ));
+
+    // Start streaming simulation
+    let idx = 0;
+    const tickMs = 60; // speed of typing
+    streamingRef.current = setInterval(() => {
+      // increase by random small chunk to feel natural
+      idx += Math.max(1, Math.floor(Math.random() * 6));
+      const chunk = fullResponse.slice(0, idx);
 
       setConversations(prev => prev.map(conv => 
         conv.id === activeConversationId 
-          ? { ...conv, messages: [...conv.messages, assistantMessage] }
+          ? { ...conv, messages: conv.messages.map(m => m.id === assistantId ? { ...m, content: chunk } : m) }
           : conv
       ));
-      setIsLoading(false);
-    }, 1500);
+
+      if (idx >= fullResponse.length) {
+        // finished
+        if (streamingRef.current) {
+          clearInterval(streamingRef.current);
+          streamingRef.current = null;
+        }
+        setIsStreaming(false);
+        setIsLoading(false);
+      }
+    }, tickMs);
   };
 
   const generateMockResponse = (userMessage: string): string => {
@@ -267,7 +289,19 @@ const Chatbot = () => {
                     </div>
                   ))}
                   
-                  {isLoading && (
+                  {isStreaming && (
+                    <div className="flex justify-start">
+                      <div className="bg-secondary text-secondary-foreground p-3 rounded-xl max-w-[40%]">
+                        <div className="flex items-center space-x-2">
+                          <div className="h-2 w-2 rounded-full bg-muted-foreground animate-pulse" />
+                          <div className="h-2 w-2 rounded-full bg-muted-foreground animate-pulse delay-75" />
+                          <div className="h-2 w-2 rounded-full bg-muted-foreground animate-pulse delay-150" />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {isLoading && !isStreaming && (
                     <div className="flex justify-start">
                       <div className="bg-secondary text-secondary-foreground p-4 rounded-xl max-w-[80%]">
                         <div className="flex items-center space-x-2">
