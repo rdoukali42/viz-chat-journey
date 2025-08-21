@@ -3,6 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ArrowLeft, Download, FileText, BarChart3, Calendar, Database, ExternalLink } from 'lucide-react';
 import { FileData, useUser } from '@/contexts/UserContext';
+import ColumnDetail from './ColumnDetail';
+import { useState } from 'react';
 
 interface DataDiscoveryProps {
   file: FileData;
@@ -24,6 +26,7 @@ const mockDataRecords = [
 
 const DataDiscovery: React.FC<DataDiscoveryProps> = ({ file, onBack, onFileSelect }) => {
   const { files } = useUser();
+  const [selectedColumn, setSelectedColumn] = useState<string | null>(null);
   
   const formatFileSize = (bytes: number) => {
     return (bytes / 1024 / 1024).toFixed(2) + ' MB';
@@ -117,23 +120,17 @@ const DataDiscovery: React.FC<DataDiscoveryProps> = ({ file, onBack, onFileSelec
                 return (
                   <div key={index} className="group p-4 bg-secondary/30 rounded-lg border border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-all">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center flex-1">
+                      <div className="flex items-center flex-1 cursor-pointer" onClick={() => setSelectedColumn(column)}>
                         <span className="font-semibold text-foreground text-lg">{column}</span>
-                        {relatedFile && (
-                          <div className="ml-3 flex items-center text-primary">
-                            <ExternalLink className="h-4 w-4 mr-1" />
-                            <span className="text-sm font-medium">Connected</span>
-                          </div>
-                        )}
                       </div>
                       <div className="flex items-center space-x-4 text-sm">
-                        <span className="text-muted-foreground">
+                        {/* <span className="text-muted-foreground">
                           {Math.floor(Math.random() * 3) + 1}k unique values
                         </span>
                         <span className="text-muted-foreground">•</span>
-                        <span className="text-muted-foregroup">
+                        <span className="text-muted-foreground">
                           {Math.floor(Math.random() * 10) + 90}% complete
-                        </span>
+                        </span> */}
                         {relatedFile && (
                           <Button
                             variant="outline"
@@ -150,6 +147,15 @@ const DataDiscovery: React.FC<DataDiscoveryProps> = ({ file, onBack, onFileSelec
                   </div>
                 );
               })}
+              {selectedColumn && (
+                <ColumnDetail
+                  column={selectedColumn}
+                  file={file}
+                  relatedFile={getRelatedFile(selectedColumn)}
+                  onClose={() => setSelectedColumn(null)}
+                  onFileSelect={onFileSelect}
+                />
+              )}
             </div>
           </Card>
 

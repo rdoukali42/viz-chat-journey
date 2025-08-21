@@ -138,7 +138,7 @@ const Dashboard = () => {
                   <tr>
                     <th className="text-left py-3 px-4 font-medium text-foreground">File Name</th>
                     <th className="text-left py-3 px-4 font-medium text-foreground">Columns</th>
-                    <th className="text-left py-3 px-4 font-medium text-foreground">Database Link</th>
+                    {/* <th className="text-left py-3 px-4 font-medium text-foreground">Database Link</th> */}
                     <th className="text-left py-3 px-4 font-medium text-foreground">Actions</th>
                   </tr>
                 </thead>
@@ -156,8 +156,8 @@ const Dashboard = () => {
                                <span className="font-medium">{formatFileSize(file.size)}</span>
                                <span className="font-medium">{file.rowCount.toLocaleString()} rows</span>
                                <span className="flex items-center font-medium">
-                                 <Calendar className="h-3 w-3 mr-1" />
-                                 {file.uploadDate}
+                                 {/* <Calendar className="h-3 w-3 mr-1" /> */}
+                                 {/* {file.uploadDate} */}
                                </span>
                              </div>
                            </div>
@@ -180,7 +180,7 @@ const Dashboard = () => {
                            )}
                          </div>
                        </td>
-                       <td className="py-6 px-4">
+                       {/* <td className="py-6 px-4">
                          {file.databaseLink ? (
                            <Button
                              variant="outline"
@@ -196,7 +196,7 @@ const Dashboard = () => {
                          ) : (
                            <span className="text-muted-foreground text-sm font-medium">No Link</span>
                          )}
-                       </td>
+                       </td> */}
                        <td className="py-6 px-4">
                          <div className="flex items-center space-x-3">
                            <Button

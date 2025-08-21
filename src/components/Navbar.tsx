@@ -19,7 +19,7 @@ const Navbar = () => {
                 alt="OnMark Logo" 
                 className="h-8 w-auto"
               />
-              <span className="text-xl font-bold text-foreground">OnMark Analytics</span>
+              {/* <span className="text-xl font-bold text-foreground">OnMark Analytics</span> */}
             </Link>
           </div>
           
