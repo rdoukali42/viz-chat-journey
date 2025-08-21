@@ -8,6 +8,7 @@ import { useProgress } from '@/contexts/ProgressContext';
 import { toast } from 'sonner';
 import { Upload, FileText, ArrowRight } from 'lucide-react';
 import Spinner from '@/components/Spinner';
+import ConnectSQL from '@/components/ConnectSQL';
 import { cn } from '@/lib/utils';
 
 const Home = () => {
@@ -133,6 +134,11 @@ const Home = () => {
                   </>
                 )}
               </div>
+            </div>
+          </Card>
+          <Card>
+            <div className="max-w-6xl mx-auto px-4 py-6">
+              <ConnectSQL />
             </div>
           </Card>
         </div>
